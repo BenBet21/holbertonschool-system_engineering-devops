@@ -1,0 +1,46 @@
+# Design of a Single-Server Web Infrastructure.
+
+Here is the design of a simple single-server infrastructure that hosts the website www.foobar.com, adhering to the requirements.
+
+# User Journey:
+When a user wants to access the site www.foobar.com, the process is as follows:
+- The user enters the URL www.foobar.com in their browser.
+- The browser sends a request to a DNS server to resolve www.foobar.com into an IP address.
+- The DNS server returns the A record that links www.foobar.com to the IP address 8.8.8.8.
+- The browser then sends an HTTP/HTTPS request to 8.8.8.8 to access the website's content.
+- The request reaches the web server (Nginx) hosted on the server, which processes the request, communicates with the application server to generate dynamic content (application files), and interacts with the database (MySQL) if needed to retrieve information.
+- The server then sends the response (the website pages) back to the user's browser, which displays them.
+
+# Infrastructure Components:
+
+  Server:
+  A server is a physical or virtual machine that hosts and runs the web application. In this case, it has the IP address 8.8.8.8. This server will run all necessary components such as the web server, application server, and database.
+
+  Domain Name:
+  foobar.com is a domain name that translates a human-readable name into an IP address. Here, www.foobar.com points to IP 8.8.8.8. This domain name is managed via a DNS system, which resolves the name to an IP address to direct users to the correct server.
+
+  Web Server (Nginx):
+  The role of the web server is to handle HTTP/HTTPS requests sent by users. In this case, Nginx acts as the web server and responds to requests by:
+
+    - Serving static content directly (such as HTML, CSS, JS files).
+    - Forwarding requests to the application server if the content is dynamic (generated on the fly).
+
+  Application Server:
+  The application server runs the business logic of the application. When a request arrives at the web server and requires dynamic processing (such as displaying data from the database), the web server redirects this request to the application server. The application server contains the source code of the application (the code you developed) and processes the requests to provide appropriate responses.
+
+  Database (MySQL):
+  The MySQL database stores the website's data (e.g., users, blog posts, etc.). The application server queries the database to retrieve or store information based on user requests.
+
+  Domain Name with www Record:
+  The www DNS record is an A record that links the subdomain www.foobar.com to the server's IP address 8.8.8.8. This allows users to type www.foobar.com and be redirected to the correct server.
+
+# Potential Issues with this Infrastructure:
+
+    SPOF (Single Point of Failure):
+    The main issue with a single-server infrastructure is that there is a single point of failure. If the server goes down (due to hardware failure, software issues, or overload), the entire website becomes inaccessible.
+
+    Downtime During Maintenance:
+    If you need to update the server, deploy a new version of the code, or restart the web server (Nginx), it will cause downtime. During this time, the website will be inaccessible.
+
+    Inability to Scale with Traffic:
+    If the website becomes popular and receives a lot of traffic, a single server may not be able to handle all the requests. This can lead to slowdowns or service interruptions. A potential solution could be adding more servers or using a load balancer to distribute traffic.
