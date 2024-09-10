@@ -1,0 +1,80 @@
+
+# Web Infrastructure Design for www.foobar.com
+
+Components:
+  - 3 Web Servers: Hosting the website content and running the application.
+  - 1 Load Balancer: Distributes traffic across the web servers.
+  - 1 MySQL Database Server: Manages the relational database.
+  - 3 Firewalls: Protects each server layer (web, application, and database).
+  - SSL Certificate: Ensures secure HTTPS communication for www.foobar.com.
+  - 3 Monitoring Clients: Collects metrics for system health and performance, using Sumologic or another monitoring solution.
+
+# Detailed Infrastructure Diagram:
+
+  1. User Request:
+
+    The user initiates a request to www.foobar.com over HTTPS.
+    Traffic hits the Load Balancer (SSL termination is here) and is distributed across the Web Servers.
+
+  2. Web Servers:
+
+    Three web servers handle the traffic, running web applications and serving content.
+    These web servers connect to a single MySQL database server for data storage.
+
+  3. Monitoring Clients:
+
+    Each web server, load balancer, and database server has a monitoring client installed, which sends performance data to Sumologic or another monitoring platform.
+
+  4. Firewalls:
+
+    Firewall 1: Protects the external network traffic by securing the perimeter.
+    Firewall 2: Protects the internal web servers from unauthorized access.
+    Firewall 3: Protects the database server from all but authorized web server traffic.
+
+
+Infrastructure Elements and Purpose:
+
+  1. Firewalls:
+
+    Firewalls are used to block unauthorized traffic and provide network segmentation.
+      Purpose:
+        Firewall 1: Ensures that only legitimate requests (e.g., HTTP/HTTPS traffic) reach the load balancer.
+        Firewall 2: Ensures that only the load balancer can communicate with web servers.
+        Firewall 3: Ensures that only web servers have access to the database server, limiting potential security breaches.
+
+  2.SSL Certificate (HTTPS):
+
+    Traffic must be encrypted for data privacy and security.
+    Purpose: HTTPS (via an SSL certificate) encrypts communication between the client and the server, ensuring the integrity and confidentiality of sensitive data like login credentials, personal details, and payments.
+
+  3. Monitoring Clients:
+
+    Monitoring ensures that the infrastructure's health, performance, and availability are continuously tracked.
+    Purpose: Monitoring tools collect logs, metrics (CPU usage, memory usage, response times), and alerts for issues like server overloads or downtime. They send this data to platforms like Sumologic for real-time analysis and alerts.
+
+
+Monitoring Web Server Queries Per Second (QPS):
+  
+  To monitor QPS (Queries Per Second):
+
+    - Enable logging on your web servers, particularly for web server software like Nginx or Apache.
+    - Use monitoring clients (e.g., Sumologic) to collect and aggregate web access logs.
+    - Configure dashboards and alerts on the monitoring platform to count the number of incoming requests over time, calculating the QPS based on log timestamps.
+
+
+Issues with the Infrastructure:
+
+  1. SSL Termination at the Load Balancer Level:
+
+    Problem: If SSL is terminated at the load balancer and unencrypted traffic is passed from the load balancer to the web servers, it creates a security risk. Traffic within the internal network can be intercepted if it's not encrypted after the load balancer.
+    Solution: Enable end-to-end encryption by ensuring SSL is also configured between the load balancer and the web servers.
+
+  2. Single MySQL Server Accepting Writes:
+
+    Problem: A single point of failure for database writes can lead to bottlenecks and performance issues under heavy traffic. If the database server goes down, the whole application becomes non-functional.
+    Solution: Implement a master-slave or master-master replication for database redundancy and failover support. Consider a distributed database or sharding for horizontal scalability.
+
+  3.  Servers with All the Same Components:
+
+    Problem: Having web, application, and database components all on the same server creates resource contention (e.g., CPU, memory). If one component experiences heavy load, it can degrade the performance of other services.
+    Solution: Separate web servers, application servers, and database servers into distinct tiers. This allows for horizontal scaling and better resource management.
