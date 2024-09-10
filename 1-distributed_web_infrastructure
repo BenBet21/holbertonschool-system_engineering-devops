@@ -1,0 +1,61 @@
+Three-Server Web Infrastructure for www.foobar.com
+Here is the design of a three-server web infrastructure for hosting the website www.foobar.com, which includes multiple components like load balancing, application, and database scaling.
+
+# Components in the Infrastructure:
+  
+  1. Load Balancer (HAproxy):
+
+    Why: A load balancer distributes incoming traffic across multiple servers to avoid overloading a single server and to increase the reliability and scalability of the application.
+    
+    Configuration: The load balancer can use algorithms like round-robin, least connections, or IP-hashing. In this case, we use round-robin: each server gets the next incoming request in turn, balancing the load evenly across the servers.
+
+    Active-Active vs. Active-Passive:
+
+    Active-Active: Both servers are running and handling traffic simultaneously. This improves resource utilization and availability.
+    
+    Active-Passive: Only one server is active, while the other remains on standby. If the active server fails, the passive one takes over. This setup is more for redundancy than load distribution.
+  
+    In this case, the load balancer is set up as Active-Active, where both servers handle traffic in real-time.
+
+  2. Web Server (Nginx):
+
+    Why: The web server processes HTTP/HTTPS requests from users. Nginx is used because of its efficiency in handling both static files (like HTML, CSS, JavaScript) and as a reverse proxy to pass dynamic requests to the application server.
+  
+  3. Application Server:
+
+    Why: The application server handles business logic and dynamic content generation. It runs the codebase of the website, such as user authentication, database queries, and dynamic page rendering.
+
+  4. Database (MySQL Primary-Replica):
+
+    Why: A database is needed to store and manage all website data, such as user information, blog posts, and transactional records.
+    
+    Primary-Replica Cluster: This setup uses one Primary (Master) node and one Replica (Slave) node. All data changes (inserts, updates, deletes) are done on the Primary, which replicates these changes to the Replica for redundancy.
+  
+    Primary Node: Responsible for write operations (updates, inserts, etc.).
+  
+    Replica Node: Receives data updates from the Primary and can be used for read-only operations. This setup improves read performance and ensures redundancy in case the Primary fails.
+
+# Diagram of the Three-Server Infrastructure:
+
+  User: Initiates requests by accessing www.foobar.com.
+
+  Load Balancer (HAproxy): Distributes traffic across two application servers.
+
+  Web Server (Nginx): Handles HTTP/HTTPS requests and serves static content or forwards dynamic requests to the application server.
+
+  Application Servers: Two identical application servers that handle business logic and dynamic content.
+
+  Database: A Primary-Replica cluster (MySQL) with one Primary node for writes and one Replica node for read operations and backup redundancy.
+
+# Issues in this Infrastructure:
+  
+  SPOF (Single Point of Failure):
+    The load balancer itself can be a SPOF. If it fails, the entire system goes down.
+    The database Primary node can also be a SPOF if not properly configured for failover.
+
+  Security Issues:
+    No firewall: This exposes the servers to direct attacks, making them vulnerable to intrusions.
+    No HTTPS: Without SSL/TLS encryption, all data (including sensitive information) is sent as plain text, leaving it vulnerable to man-in-the-middle attacks.
+    
+  No Monitoring:
+    There is no monitoring to detect system failures, server load issues, or security threats in real-time. Adding a monitoring tool like Prometheus or Nagios would be ideal to track the health of the infrastructure.
